@@ -1,0 +1,36 @@
+---
+all:
+  hosts:
+    proxmox:
+      ansible_host: 10.10.0.3
+      ansible_connection: ssh
+      ansible_user: root
+      ansible_become: false
+    proxmox2:
+      ansible_host: 10.10.0.4
+      ansible_connection: ssh
+      ansible_user: root
+      ansible_become: false
+  children:
+    container:
+      hosts:
+        pihole:
+          ansible_host: 10.10.0.77
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_become: false
+        pihole2:
+          ansible_host: 10.10.0.78
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_become: false
+        docker:
+          ansible_host: 10.10.0.9
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_become: false
+        monitor:
+          ansible_host: 10.10.0.12
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_become: false

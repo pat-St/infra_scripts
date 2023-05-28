@@ -1,0 +1,34 @@
+---
+- name: Update Systems
+  hosts: all
+  gather_facts: true
+  become: false
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Update Systems
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+- name: Update Pihole
+  hosts: pihole pihole2
+  gather_facts: true
+  become: false
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Update DNS block List
+      ansible.builtin.command: pihole -up && pihole -g
+      register: update_block_list
+      changed_when: update_block_list.rc != 0
+- name: Reboot Hosts
+  hosts: proxmox proxmox2
+  gather_facts: true
+  tags: [ct]
+  become: false
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Restart Systems
+      ansible.builtin.reboot:
+        reboot_timeout: 3600
