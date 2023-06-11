@@ -11,7 +11,7 @@
         update_cache: true
         upgrade: dist
 - name: Update Pihole
-  hosts: pihole pihole2
+  hosts: pihole2
   gather_facts: true
   become: false
   tasks:
@@ -22,7 +22,7 @@
       register: update_block_list
       changed_when: update_block_list.rc != 0
 - name: Reboot Hosts
-  hosts: proxmox proxmox2
+  hosts: proxmox2
   gather_facts: true
   tags: [ct]
   become: false
