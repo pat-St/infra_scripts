@@ -9,7 +9,7 @@ all:
   children:
     container:
       hosts:
-        pihole2:
+        pihole:
           ansible_host: 10.10.0.78
           ansible_connection: ssh
           ansible_user: root

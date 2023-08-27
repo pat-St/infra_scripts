@@ -1,0 +1,46 @@
+---
+- name: Upgrade Debian
+  hosts: pihole
+  gather_facts: true
+  become: false
+  tags: [upgradeDeb]
+  vars:
+    old_dist: "buster"
+    new_dist: "bullseye"
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Copy of source.list
+      ansible.builtin.command: |
+        cp /etc/apt/source.list.d/{{ item.src }} /etc/apt/source.list.d/{{ item.src }}.old
+        sed -i -E 's/{{ old_dist }}/{{ new_dist }}/g' /etc/apt/source.list.d/{{ item.src }}
+      loop:
+        - { src: "source.list"}
+        - { src: "security.sources.list"}
+        - { src: "turnkey-testing.list.disabled"}
+        - { src: "debian-backports.list.disabled"}
+    - name: Update DNS block List
+      ansible.builtin.command: |
+        #sed -i -E 's/^/#/g' "deb http://security.debian.org/ bullseye/updates" /etc/apt/sources.list.d/security.sources.list
+        cat 'deb http://security.debian.org/debian-security bullseye-security main contrib non-free' >> /etc/apt/sources.list.d/security.sources.list
+      register: update_apt_list
+      changed_when: update_apt_list.rc != 0
+    - name: Upgrade Packages
+      ansible.builtin.command: |
+        apt-key --keyring /usr/share/keyrings/tkl-bullseye-main.gpg adv --keyserver keyserver.ubuntu.com --recv-keys 06320D6CBA57F60C
+        apt-key --keyring /usr/share/keyrings/tkl-bullseye-security.gpg adv --keyserver keyserver.ubuntu.com --recv-keys FBD8A00BBCC43D47
+        # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FBD8A00BBCC43D47
+        # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 06320D6CBA57F60C
+        # gpgconf --kill all
+        # gpg --keyserver keyserver.ubuntu.com --recv-keys FBD8A00BBCC43D47
+        # gpg --keyserver keyserver.ubuntu.com --recv-keys 06320D6CBA57F60C
+      when:
+        - ansible_facts['distribution'] == "Debian"
+        - ansible_facts['distribution_major_version'] == "10"
+      register: update_apt_key
+      changed_when: update_apt_key.rc != 0
+    - name: Update Systems
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: full
+        dpkg_options: "force-confdef,force-confold"
