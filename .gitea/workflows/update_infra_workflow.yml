@@ -1,7 +1,7 @@
 name: Run Ansible scripts for infra software update
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0 3 * * 7"
 
 jobs:
   run_test:
