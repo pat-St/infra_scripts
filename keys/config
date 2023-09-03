@@ -1,0 +1,25 @@
+
+Host proxmox
+    Hostname 10.10.0.4
+    IdentityFile ~/.ssh/id_ed25519_proxmox
+
+Host wireguard
+    Hostname 10.10.0.20
+    IdentityFile ~/.ssh/id_ed25519_wireguard
+
+Host pihole
+    Hostname 10.10.0.78
+    IdentityFile ~/.ssh/id_ed25519_pihole
+
+Host monitor
+    Hostname 10.10.0.12
+    IdentityFile ~/.ssh/id_ed25519_monitor
+
+Host docker
+    Hostname 10.10.0.9
+    IdentityFile ~/.ssh/id_ed25519_docker
+
+Host *
+    User root
+    Port 22
+    RequestTTY yes

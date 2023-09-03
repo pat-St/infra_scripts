@@ -9,8 +9,8 @@ volumes:
     driver: local
   database:
     driver: local
-  runner:
-    driver: local
+  # runner:
+  #   driver: local
 
 services:
   git:
@@ -37,9 +37,15 @@ services:
       - "2222:22"
     depends_on:
        - db
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 450M
 
   db:
     image: mysql:8
+    container_name: gitea-db
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
@@ -50,19 +56,28 @@ services:
       - gitea
     volumes:
       - database:/var/lib/mysql
-  ci:
-    image: gitea/act_runner:latest
-    environment:
-      - GITEA_INSTANCE_URL=http://git:3000
-      - GITEA_RUNNER_REGISTRATION_TOKEN=$GITEA_RUNNER_TOKEN
-      - GITEA_RUNNER_NAME=executor
-      - GITEA_RUNNER_LABELS=ansible
-
-    restart: always
-    networks:
-      - gitea
-    volumes:
-      - runner:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - git
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 450M
+  # ci:
+  #   image: gitea/act_runner:latest
+  #   container_name: gitea-runner
+  #   environment:
+  #     - GITEA_INSTANCE_URL=http://git:3000
+  #     - GITEA_RUNNER_REGISTRATION_TOKEN=$GITEA_RUNNER_TOKEN
+  #     - GITEA_RUNNER_NAME=executor
+  #   restart: always
+  #   networks:
+  #     - gitea
+  #   volumes:
+  #     - runner:/data
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   depends_on:
+  #     - git
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '2.0'
+  #         memory: 500M

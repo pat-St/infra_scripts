@@ -3,6 +3,7 @@
   hosts: all
   gather_facts: true
   become: false
+  tags: [update]
   tasks:
     - name: Ping Endpoints
       ansible.builtin.ping:
@@ -14,6 +15,7 @@
   hosts: pihole
   gather_facts: true
   become: false
+  tags: [update]
   tasks:
     - name: Ping Endpoints
       ansible.builtin.ping:
@@ -22,9 +24,9 @@
       register: update_block_list
       changed_when: update_block_list.rc != 0
 - name: Reboot Hosts
-  hosts: proxmox2
+  hosts: proxmox
   gather_facts: true
-  tags: [ct]
+  tags: [reboot]
   become: false
   tasks:
     - name: Ping Endpoints
@@ -32,3 +34,4 @@
     - name: Restart Systems
       ansible.builtin.reboot:
         reboot_timeout: 3600
+      when: tag_name == "reboot"

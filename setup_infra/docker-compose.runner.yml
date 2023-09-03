@@ -1,0 +1,23 @@
+version: "3"
+
+volumes:
+  runner:
+    driver: local
+
+services:
+  ci:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    environment:
+      - GITEA_INSTANCE_URL=http://git.lan:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=$GITEA_RUNNER_TOKEN
+      - GITEA_RUNNER_NAME=executor
+    restart: always
+    volumes:
+      - runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 500M

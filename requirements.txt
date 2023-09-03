@@ -1,7 +1,7 @@
-pycdlib
-pathlib
+# pycdlib
+# pathlib
 ansible
 ansible-lint
-argcomplete
-proxmoxer==2.0.*
-requests>=2.31.*
+# argcomplete
+# proxmoxer==2.0.*
+# requests>=2.31.*

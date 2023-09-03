@@ -1,0 +1,29 @@
+name: Run Ansible scripts for infra software update
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+
+jobs:
+  run_test:
+    name: run Ansible playbook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - shell: bash
+        env:
+          PRIV_KEY_pihole: ${{ secrets.PRIV_KEY_PIHOLE }}
+          PRIV_KEY_docker: ${{ secrets.PRIV_KEY_DOCKER }}
+          PRIV_KEY_monitor: ${{ secrets.PRIV_KEY_MONITOR }}
+          PRIV_KEY_proxmox: ${{ secrets.PRIV_KEY_PROXMOX }}
+          PRIV_KEY_wireguard: ${{ secrets.PRIV_KEY_WIREGUARD }}
+        run: bash keys/import.sh
+      - run: apt update && apt install -y -q python3-pip && pip3 --version
+      - run: pip3 install -r requirements.txt
+      - run: ansible-playbook update_infra.yaml -v --tags=update
+      # - shell: bash
+      #   run: |
+      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pihole hostnamectl
+      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q docker hostnamectl
+      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q monitor exit
+      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q proxmox hostnamectl
+      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q wireguard exit
