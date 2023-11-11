@@ -1,0 +1,155 @@
+---
+- name: Check Certs
+  hosts: container
+  gather_facts: true
+  become: false
+  debugger: on_failed # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html
+  tags: [update]
+  vars:
+    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+    host_url: "{{ ansible_hostname | dict2items | map(attribute='value.url', default=[]) }}"
+  tasks:
+    - name: Check certificate
+      ansible.builtin.stat:
+        path: "{{ container_ssl_path }}"
+      register: has_cert
+    - name: Create folder
+      ansible.builtin.file:
+        path: "{{ container_ssl_path }}"
+        state: directory
+        follow: true
+        mode: '0600'
+      when: not has_cert.stat.exists
+
+- name: Update Systems
+  hosts: certmanager
+  gather_facts: true
+  become: false
+  tags: [update]
+  vars:
+    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+    host_url: "{{ hostvars | dict2items | map(attribute='value.url', default=[]) }}"
+  tasks:
+    - name: Setup variabel
+      ansible.builtin.set_fact:
+        domain_dict: []
+        domain_list: []
+        update_cert: false
+    - name: Create list
+      ansible.builtin.set_fact:
+        domain_dict: "{{ domain_dict + [dict({hostname: path})] }}"
+        domain_list: "{{ domain_list + [dict({'key': hostname, 'value':path})] }}"
+      loop: "{{ hostvars.keys() | list }}"
+      vars:
+        hostname: "{{ item }}"
+        path: "/etc/letsencrypt/live/{{ item }}"
+      # run_once: true
+    - name: Prepare System
+      ansible.builtin.apt:
+        package:
+          - python3
+          - python3-venv
+          - virtualenv
+          - python3-virtualenv
+          - libaugeas0
+        update_cache: true
+    - name: Install certbot
+      ansible.builtin.pip:
+        virtualenv: ~/opt/certbot/
+        virtualenv_site_packages: true
+        virtualenv_command: /usr/bin/virtualenv
+        # virtualenv_python: '-m venv'
+        name:
+          - certbot
+          - certbot-nginx
+    - name: Create folder
+      ansible.builtin.file:
+        path: "{{ item.value }}/html"
+        state: directory
+        follow: true
+        mode: '0600'
+      loop: "{{ domain_list }}"
+    - name: Create config folder
+      ansible.builtin.file:
+        path: ".config/letsencrypt/"
+        state: directory
+        follow: true
+        mode: '0600'
+    - name: Copy Cert config
+      ansible.builtin.copy:
+        src: "cli.ini"
+        dest: ".config/letsencrypt/cli.ini"
+        mode: '0600'
+        force: true
+    - name: Run certbot
+      vars:
+        env_var: '-d ninsun.sterk-bodensee.de -d enki.sterk-bodensee.de -d abzu.sterk-bodensee.de -d tiamat.sterk-bodensee.de -d kingu.sterk-bodensee.de -d anu.sterk-bodensee.de'
+      ansible.builtin.command:
+        cmd: ./opt/certbot/bin/certbot  certonly --renew-by-default -n --preferred-challenges=http --standalone {{ env_var }}
+      when: update_cert
+    - name: Copy Files
+      block:
+        - name: Copy to local
+          ansible.builtin.fetch:
+            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/fullchain.pem"
+            dest: "{{ playbook_dir }}/ssl-cert/"
+            flat: true
+            # mode: '0600'
+        - name: Copy to local 2
+          ansible.builtin.fetch:
+            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/privkey.pem"
+            dest: "{{ playbook_dir }}/ssl-cert/"
+            flat: true
+            # mode: '0600'
+        - name: Copy to local 3
+          ansible.builtin.fetch:
+            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/cert.pem"
+            dest: "{{ playbook_dir }}/ssl-cert/"
+            flat: true
+            # mode: '0600'
+        - name: Copy to local 4
+          ansible.builtin.fetch:
+            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/chain.pem"
+            dest: "{{ playbook_dir }}/ssl-cert/"
+            flat: true
+            # mode: '0600'
+- name: Update Systems
+  hosts: container:proxmox:!certmanager
+  gather_facts: true
+  become: false
+  tags: [update]
+  vars:
+    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+  tasks:
+    - name: Copy to container
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/ssl-cert/fullchain.pem"
+        dest: "{{ container_ssl_path }}"
+        mode: '0600'
+    - name: Copy to container
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/ssl-cert/privkey.pem"
+        dest: "{{ container_ssl_path }}"
+        mode: '0600'
+    - name: Copy to container
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/ssl-cert/cert.pem"
+        dest: "{{ container_ssl_path }}"
+        mode: '0600'
+    - name: Copy to container
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/ssl-cert/chain.pem"
+        dest: "{{ container_ssl_path }}"
+        mode: '0600'
+
+- name: Update Proxmox API
+  hosts: proxmox
+  gather_facts: true
+  become: false
+  tags: [update]
+  vars:
+    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+  tasks:
+    - name: Update Endpoint
+      ansible.builtin.script:
+        cmd: ./cert-management/proxmox_update_certs.sh {{ container_ssl_path }}

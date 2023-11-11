@@ -9,12 +9,14 @@ volumes:
     driver: local
   database:
     driver: local
-  # runner:
-  #   driver: local
+  ntfy:
+    driver: local
+  ntfycache:
+    driver: local
 
 services:
   git:
-    image: gitea/gitea:1.20.3
+    image: gitea/gitea:nightly
     container_name: gitea
     environment:
       - USER_UID=1000
@@ -25,7 +27,6 @@ services:
       - GITEA__database__USER=$DB__USER
       - GITEA__database__PASSWD=$DB__PASSWD
       - GITEA__actions__ENABLED=true
-    restart: always
     networks:
       - gitea
     volumes:
@@ -37,16 +38,16 @@ services:
       - "2222:22"
     depends_on:
        - db
+    restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 450M
+          memory: 350M
 
   db:
     image: mysql:8
     container_name: gitea-db
-    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
       - MYSQL_USER=$DB__USER
@@ -56,28 +57,34 @@ services:
       - gitea
     volumes:
       - database:/var/lib/mysql
+    restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 450M
-  # ci:
-  #   image: gitea/act_runner:latest
-  #   container_name: gitea-runner
-  #   environment:
-  #     - GITEA_INSTANCE_URL=http://git:3000
-  #     - GITEA_RUNNER_REGISTRATION_TOKEN=$GITEA_RUNNER_TOKEN
-  #     - GITEA_RUNNER_NAME=executor
-  #   restart: always
-  #   networks:
-  #     - gitea
-  #   volumes:
-  #     - runner:/data
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   depends_on:
-  #     - git
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '2.0'
-  #         memory: 500M
+          cpus: '1.5'
+          memory: 350M
+
+  ntfy:
+    image: binwiederhier/ntfy:v2.7.0
+    container_name: ntfy
+    command:
+      - serve
+    environment:
+      - TZ=UTC+2    # optional: set desired timezone
+    volumes:
+      - ntfycache:/var/cache/ntfy
+      - ntfy:/etc/ntfy
+    ports:
+      - 80:80
+    healthcheck: # optional: remember to adapt the host:port to your environment
+        test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:80/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1"]
+        interval: 60s
+        timeout: 10s
+        retries: 3
+        start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 150M

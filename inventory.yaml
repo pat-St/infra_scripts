@@ -1,32 +1,42 @@
 ---
 all:
-  hosts:
-    proxmox:
-      # ansible_host: 10.10.0.4
-      # ansible_connection: ssh
-      # ansible_user: root
-      ansible_become: false
-      ansible_ssh_common_args: -o RemoteCommand=none
+  # hosts:
   children:
+    bare:
+      hosts:
+        proxmox:
+          url: anu.sterk-bodensee.de
+          # ansible_host: 10.10.0.4
+          # ansible_connection: ssh
+          # ansible_user: root
+          ansible_become: false
+          ansible_ssh_common_args: -o RemoteCommand=none
     container:
       hosts:
         pihole:
+          url: tiamat.sterk-bodensee.de
           # ansible_host: 10.10.0.78
           # ansible_connection: ssh
           # ansible_user: root
           ansible_become: false
         docker:
+          url: enki.sterk-bodensee.de
           # ansible_host: 10.10.0.9
           # ansible_connection: ssh
           # ansible_user: root
           ansible_become: false
         monitor:
+          url: abzu.sterk-bodensee.de
           # ansible_host: 10.10.0.12
           # ansible_connection: ssh
           # ansible_user: root
           ansible_become: false
         wireguard:
+          url: ninsun.sterk-bodensee.de
           # ansible_host: 10.10.0.20
           # ansible_connection: ssh
           # ansible_user: root
+          ansible_become: false
+        certmanager:
+          url: certmanager.lan
           ansible_become: false
