@@ -4,8 +4,11 @@ TARGET_PATH=~/.ssh
 mkdir -p "$TARGET_PATH"
 cp keys/config "${TARGET_PATH}/config"
 chmod 600 "${TARGET_PATH}/config"
-## Import keys
-names=( proxmox wireguard pihole monitor docker )
+
+# names=( proxmox wireguard pihole monitor docker certmanager )
+## Import hostname from config
+names=( $( grep -E '^Host\s{1}\w+$' config | sed -E 's/Host\s{1}//' | sed -z 's/\n/ /g' ) )
+
 for name in "${names[@]}"
 do
     # Generated key pair

@@ -16,6 +16,7 @@ jobs:
           PRIV_KEY_monitor: ${{ secrets.PRIV_KEY_MONITOR }}
           PRIV_KEY_proxmox: ${{ secrets.PRIV_KEY_PROXMOX }}
           PRIV_KEY_wireguard: ${{ secrets.PRIV_KEY_WIREGUARD }}
+          PRIV_KEY_certmanager: ${{ secrets.PRIV_KEY_CERTMANAGER }}
         run: bash keys/import.sh
       - run: apt update && apt install -y -q python3-pip && pip3 --version
       - run: pip3 install -r requirements.txt

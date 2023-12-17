@@ -1,5 +1,7 @@
 #!/bin/env bash
-names=( proxmox wireguard pihole monitor docker )
+## Import hostname from config
+names=( $( grep -E '^Host\s{1}\w+$' config | sed -E 's/Host\s{1}//' | sed -z 's/\n/ /g' ) )
+
 for name in "${names[@]}"
 do
     # Generate key pair
