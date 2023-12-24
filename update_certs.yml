@@ -3,7 +3,7 @@
   hosts: container
   gather_facts: true
   become: false
-  debugger: on_failed # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html
+  # debugger: on_failed # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html
   tags: [update]
   vars:
     container_ssl_path: "/etc/letsencrypt/live/ssl/"
@@ -34,7 +34,7 @@
       ansible.builtin.set_fact:
         domain_dict: []
         domain_list: []
-        update_cert: false
+        update_cert: true
     - name: Create list
       ansible.builtin.set_fact:
         domain_dict: "{{ domain_dict + [dict({hostname: path})] }}"

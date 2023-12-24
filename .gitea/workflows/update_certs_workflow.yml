@@ -1,11 +1,11 @@
-name: Run Ansible scripts for infra software update
+name: Run Ansible scripts for cert update
 on:
-  - schedule:
-      - cron: "0 6 * * 6"
+  schedule:
+    - cron: "0 20 1 * *"
 
 jobs:
   run_test:
-    name: run Ansible playbook
+    name: run Cert update playbook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
         run: bash keys/import.sh
       - run: apt update && apt install -y -q python3-pip && pip3 --version
       - run: pip3 install -r requirements.txt
-      - run: ansible-playbook update_infra.yaml -v --tags=update
+      - run: ansible-playbook update_certs.yml -v --tags=update
       # - shell: bash
       #   run: |
       #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pihole hostnamectl

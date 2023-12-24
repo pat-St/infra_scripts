@@ -19,6 +19,12 @@
     - name: Restart Systems
       ansible.builtin.reboot:
         reboot_timeout: 3600
+      when: ansible_facts['hostname'] != "wireguard" and ansible_facts['hostname'] != "monitor"
+    - name: Restart Systems
+      ansible.builtin.reboot:
+        reboot_command: systemd-run reboot now
+        reboot_timeout: 3600
+      when: ansible_facts['hostname'] == "wireguard" or ansible_facts['hostname'] == "monitor"
 
 - name: Reboot Host System
   hosts: bare

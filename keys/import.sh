@@ -7,7 +7,7 @@ chmod 600 "${TARGET_PATH}/config"
 
 # names=( proxmox wireguard pihole monitor docker certmanager )
 ## Import hostname from config
-names=( $( grep -E '^Host\s{1}\w+$' config | sed -E 's/Host\s{1}//' | sed -z 's/\n/ /g' ) )
+names=( $( grep -E '^Host\s{1}\w+$' "${TARGET_PATH}/config" | sed -E 's/Host\s{1}//' | sed -z 's/\n/ /g' ) )
 
 for name in "${names[@]}"
 do
