@@ -1,11 +1,11 @@
 name: Run Ansible scripts for infra software update
 on:
-  - schedule:
-      - cron: "0 6 * * 6"
+  schedule:
+    - cron: "0 6 * * 6"
 
 jobs:
   run_test:
-    name: run Ansible playbook
+    name: run Infra update playbook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,10 +21,3 @@ jobs:
       - run: apt update && apt install -y -q python3-pip && pip3 --version
       - run: pip3 install -r requirements.txt
       - run: ansible-playbook update_infra.yaml -v --tags=update
-      # - shell: bash
-      #   run: |
-      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pihole hostnamectl
-      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q docker hostnamectl
-      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q monitor exit
-      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q proxmox hostnamectl
-      #     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q wireguard exit
