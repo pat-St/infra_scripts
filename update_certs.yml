@@ -1,25 +1,61 @@
 ---
 - name: Check Certs
-  hosts: container
+  hosts: container:proxmox:!certmanager
   gather_facts: true
   become: false
   # debugger: on_failed # https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html
   tags: [update]
   vars:
-    container_ssl_path: "/etc/letsencrypt/live/ssl/"
     host_url: "{{ ansible_hostname | dict2items | map(attribute='value.url', default=[]) }}"
+  vars_files:
+    - vars/cert_update_vars.yml
   tasks:
-    - name: Check certificate
-      ansible.builtin.stat:
-        path: "{{ container_ssl_path }}"
-      register: has_cert
-    - name: Create folder
+    - name: Create folder if not existing
       ansible.builtin.file:
         path: "{{ container_ssl_path }}"
         state: directory
         follow: true
         mode: '0600'
-      when: not has_cert.stat.exists
+
+- name: Start cert manager container
+  hosts: proxmox
+  gather_facts: true
+  become: false
+  tags: [update]
+  vars_files:
+    - vars/cert_update_vars.yml
+  tasks:
+    - name: Start container
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pct start $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
+        executable: /bin/bash
+      failed_when: false
+      changed_when: true
+    - name: Sleep for 5 seconds and continue with play
+      ansible.builtin.wait_for:
+        timeout: 5
+      delegate_to: localhost
+    - name: Check if container already running
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pct status $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
+        executable: /bin/bash
+      changed_when: false
+      register: container_state
+    - name: Check if process run
+      ansible.builtin.assert:
+        that:
+          - "'running' in container_state.stdout"
+    - name: Sleep for 5 seconds and continue with play
+      ansible.builtin.wait_for:
+        timeout: 5
+      delegate_to: localhost
+    - name: Check if container is accessable
+      ansible.builtin.ping:
+      delegate_to: certmanager
 
 - name: Update Systems
   hosts: certmanager
@@ -27,18 +63,17 @@
   become: false
   tags: [update]
   vars:
-    container_ssl_path: "/etc/letsencrypt/live/ssl/"
     host_url: "{{ hostvars | dict2items | map(attribute='value.url', default=[]) }}"
+  vars_files:
+    - vars/cert_update_vars.yml
   tasks:
-    - name: Setup variabel
+    - name: Setup variable
       ansible.builtin.set_fact:
-        domain_dict: []
         domain_list: []
         update_cert: true
     - name: Create list
       ansible.builtin.set_fact:
-        domain_dict: "{{ domain_dict + [dict({hostname: path})] }}"
-        domain_list: "{{ domain_list + [dict({'key': hostname, 'value':path})] }}"
+        domain_list: "{{ domain_list + [dict({'key': hostname, 'value': path})] }}"
       loop: "{{ hostvars.keys() | list }}"
       vars:
         hostname: "{{ item }}"
@@ -81,75 +116,86 @@
         dest: ".config/letsencrypt/cli.ini"
         mode: '0600'
         force: true
-    - name: Run certbot
+    - name: Update certificate with certbot
       vars:
-        env_var: '-d ninsun.sterk-bodensee.de -d enki.sterk-bodensee.de -d abzu.sterk-bodensee.de -d tiamat.sterk-bodensee.de -d kingu.sterk-bodensee.de -d anu.sterk-bodensee.de'
+        env_var: "{{ certbot_domains_parameter }}"
       ansible.builtin.command:
-        cmd: ./opt/certbot/bin/certbot  certonly --renew-by-default -n --preferred-challenges=http --standalone {{ env_var }}
+        cmd: ./opt/certbot/bin/certbot certonly --renew-by-default -n --preferred-challenges=http --standalone {{ env_var }}
+      changed_when: true
       when: update_cert
     - name: Copy Files
       block:
         - name: Copy to local
           ansible.builtin.fetch:
-            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/fullchain.pem"
+            src: "{{ certbot_domains_cert_path }}/ninsun.sterk-bodensee.de/{{ item }}.pem"
             dest: "{{ playbook_dir }}/ssl-cert/"
             flat: true
             # mode: '0600'
-        - name: Copy to local 2
-          ansible.builtin.fetch:
-            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/privkey.pem"
-            dest: "{{ playbook_dir }}/ssl-cert/"
-            flat: true
-            # mode: '0600'
-        - name: Copy to local 3
-          ansible.builtin.fetch:
-            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/cert.pem"
-            dest: "{{ playbook_dir }}/ssl-cert/"
-            flat: true
-            # mode: '0600'
-        - name: Copy to local 4
-          ansible.builtin.fetch:
-            src: "/etc/letsencrypt/live/ninsun.sterk-bodensee.de/chain.pem"
-            dest: "{{ playbook_dir }}/ssl-cert/"
-            flat: true
-            # mode: '0600'
+          loop:
+            - "fullchain"
+            - "privkey"
+            - "cert"
+            - "chain"
 - name: Update Systems
   hosts: container:proxmox:!certmanager
   gather_facts: true
   become: false
   tags: [update]
-  vars:
-    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+  vars_files:
+    - vars/cert_update_vars.yml
   tasks:
-    - name: Copy to container
+    - name: Copy certificates to target host
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/ssl-cert/fullchain.pem"
+        src: "{{ playbook_dir }}/ssl-cert/{{ item }}.pem"
         dest: "{{ container_ssl_path }}"
         mode: '0600'
-    - name: Copy to container
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/ssl-cert/privkey.pem"
-        dest: "{{ container_ssl_path }}"
-        mode: '0600'
-    - name: Copy to container
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/ssl-cert/cert.pem"
-        dest: "{{ container_ssl_path }}"
-        mode: '0600'
-    - name: Copy to container
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/ssl-cert/chain.pem"
-        dest: "{{ container_ssl_path }}"
-        mode: '0600'
+      loop:
+        - "fullchain"
+        - "privkey"
+        - "cert"
+        - "chain"
 
 - name: Update Proxmox API
   hosts: proxmox
   gather_facts: true
   become: false
   tags: [update]
-  vars:
-    container_ssl_path: "/etc/letsencrypt/live/ssl/"
+  vars_files:
+    - vars/cert_update_vars.yml
   tasks:
     - name: Update Endpoint
       ansible.builtin.script:
         cmd: ./cert-management/proxmox_update_certs.sh {{ container_ssl_path }}
+
+- name: Stop cert manager container
+  hosts: proxmox
+  gather_facts: true
+  become: false
+  tags: [update]
+  vars_files:
+    - vars/cert_update_vars.yml
+  tasks:
+    - name: Stop container
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pct stop $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
+        executable: /bin/bash
+      changed_when: true
+      failed_when: false
+    - name: Sleep for 5 seconds and continue with play
+      ansible.builtin.wait_for:
+        timeout: 5
+      delegate_to: localhost
+    - name: Check if container already stopped
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pct status $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
+        executable: /bin/bash
+      changed_when: false
+      register: container_state
+    - name: Check if container stopped
+      ansible.builtin.assert:
+        that:
+          - "'stopped' in container_state.stdout"
