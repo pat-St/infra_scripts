@@ -1,0 +1,25 @@
+---
+- name: Update Container
+  hosts: portainer:portainer2
+  gather_facts: true
+  become: true
+  tags: [update]
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Update Systems
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+
+- name: Reboot Host System
+  hosts: portainer:portainer2
+  gather_facts: true
+  tags: [reboot]
+  become: true
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Restart Systems
+      ansible.builtin.reboot:
+        reboot_timeout: 3600

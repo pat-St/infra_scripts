@@ -27,7 +27,7 @@
       when: ansible_facts['hostname'] == "wireguard" or ansible_facts['hostname'] == "monitor"
 
 - name: Reboot Host System
-  hosts: bare
+  hosts: proxmox
   gather_facts: true
   tags: [reboot]
   become: false

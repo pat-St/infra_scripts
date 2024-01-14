@@ -11,6 +11,16 @@ all:
           # ansible_user: root
           ansible_become: false
           ansible_ssh_common_args: -o RemoteCommand=none
+        portainer:
+          ansible_host: 10.10.0.5
+          ansible_user: user
+          ansible_connection: ssh
+          ansible_ssh_common_args: -p 4422 -i ~/.ssh/id_rsa_10.10.0.117
+        portainer2:
+          ansible_host: 10.10.0.6
+          ansible_user: portainer
+          ansible_connection: ssh
+          ansible_ssh_common_args: -p 4422 -i ~/.ssh/id_rsa_10.10.0.6
     container:
       hosts:
         pihole:
