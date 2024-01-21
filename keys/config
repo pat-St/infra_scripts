@@ -21,6 +21,7 @@ Host docker
 Host certmanager
     Hostname 10.10.0.8
     IdentityFile ~/.ssh/id_ed25519_certmanager
+
 Host *
     User root
     Port 22

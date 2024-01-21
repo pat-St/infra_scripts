@@ -1,15 +1,17 @@
 name: Run Ansible scripts for infra software update
 on:
-  schedule:
-    - cron: "0 6 * * 6"
+  - schedule:
+      - cron: "0 6 * * 6"
 
 jobs:
   run_test:
     name: run Infra update playbook
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - shell: bash
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Initial environment variables
+        shell: bash
         env:
           PRIV_KEY_pihole: ${{ secrets.PRIV_KEY_PIHOLE }}
           PRIV_KEY_docker: ${{ secrets.PRIV_KEY_DOCKER }}
@@ -18,6 +20,30 @@ jobs:
           PRIV_KEY_wireguard: ${{ secrets.PRIV_KEY_WIREGUARD }}
           PRIV_KEY_certmanager: ${{ secrets.PRIV_KEY_CERTMANAGER }}
         run: bash keys/import.sh
-      - run: apt update && apt install -y -q python3-pip && pip3 --version
-      - run: pip3 install -r requirements.txt
-      - run: ansible-playbook update_infra.yaml -v --tags=update
+      - name: Prepare package dependencies
+        run: apt update && apt install -y -q python3-pip && pip3 --version
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
+      - name: Update infrastructure
+        run: ansible-playbook update_infra.yaml -v --tags=update
+      - name: Notify if update failed
+        if: ${{ failure() }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USER }}
+          password: ${{ secrets.MAIL_PW }}
+          subject: Update infrastructure over ansible scripts ${{ job.status }}
+          to: ${{ secrets.MAIL_TARG_ADDR }}
+          from: Gitea Action Script
+          ignore_cert: true
+          priority: high
+          body: |
+            {
+            "Output": "${{ gitea.job }}",
+            "Event": "${{ gitea.event_name }}",
+            "runner:" "${{ gitea.run_name }}",
+            "Job": ${{ toJson(job) }},
+            "Step": ${{ toJson(steps) }}
+            }
