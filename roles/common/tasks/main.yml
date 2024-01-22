@@ -1,0 +1,10 @@
+---
+- name: Start cert manager container
+  import_tasks: start.yml
+  when: goal == "start"
+
+- name: Stop cert manager container
+  import_tasks: stop.yml
+  when: goal == "stop"
+
+

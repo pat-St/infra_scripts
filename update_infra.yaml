@@ -1,9 +1,17 @@
 ---
+- name: Start Container
+  hosts: proxmox
+  tasks:
+    - name: First Start
+      import_role:
+        name: common
+      vars:
+        goal: "start"
+
 - name: Update Container
   hosts: container
   gather_facts: true
   become: false
-  tags: [update]
   tasks:
     - name: Ping Endpoints
       ansible.builtin.ping:
@@ -26,10 +34,18 @@
         reboot_timeout: 3600
       when: ansible_facts['hostname'] == "wireguard" or ansible_facts['hostname'] == "monitor"
 
+- name: Stop Container
+  hosts: proxmox
+  tasks:
+    - name: First Start
+      import_role:
+        name: common
+      vars:
+        goal: "stop"
+
 - name: Reboot Host System
   hosts: proxmox
   gather_facts: true
-  tags: [reboot]
   become: false
   tasks:
     - name: Ping Endpoints
@@ -37,4 +53,4 @@
     - name: Restart Systems
       ansible.builtin.reboot:
         reboot_timeout: 3600
-      when: tag_name == "reboot"
+      when: ansible_run_tags == "reboot"

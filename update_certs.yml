@@ -8,7 +8,7 @@
   vars:
     host_url: "{{ ansible_hostname | dict2items | map(attribute='value.url', default=[]) }}"
   vars_files:
-    - vars/cert_update_vars.yml
+    - vars/main.yml
   tasks:
     - name: Create folder if not existing
       ansible.builtin.file:
@@ -17,45 +17,14 @@
         follow: true
         mode: '0600'
 
-- name: Start cert manager container
+- name: Start Container
   hosts: proxmox
-  gather_facts: true
-  become: false
-  tags: [update]
-  vars_files:
-    - vars/cert_update_vars.yml
   tasks:
-    - name: Start container
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          pct start $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
-        executable: /bin/bash
-      failed_when: false
-      changed_when: true
-    - name: Sleep for 5 seconds and continue with play
-      ansible.builtin.wait_for:
-        timeout: 5
-      delegate_to: localhost
-    - name: Check if container already running
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          pct status $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
-        executable: /bin/bash
-      changed_when: false
-      register: container_state
-    - name: Check if process run
-      ansible.builtin.assert:
-        that:
-          - "'running' in container_state.stdout"
-    - name: Sleep for 5 seconds and continue with play
-      ansible.builtin.wait_for:
-        timeout: 5
-      delegate_to: localhost
-    - name: Check if container is accessable
-      ansible.builtin.ping:
-      delegate_to: certmanager
+    - name: First Start
+      import_role:
+        name: common
+      vars:
+        goal: "start"
 
 - name: Update Systems
   hosts: certmanager
@@ -65,7 +34,7 @@
   vars:
     host_url: "{{ hostvars | dict2items | map(attribute='value.url', default=[]) }}"
   vars_files:
-    - vars/cert_update_vars.yml
+    - vars/main.yml
   tasks:
     - name: Setup variable
       ansible.builtin.set_fact:
@@ -142,7 +111,7 @@
   become: false
   tags: [update]
   vars_files:
-    - vars/cert_update_vars.yml
+    - vars/main.yml
   tasks:
     - name: Copy certificates to target host
       ansible.builtin.copy:
@@ -161,41 +130,17 @@
   become: false
   tags: [update]
   vars_files:
-    - vars/cert_update_vars.yml
+    - vars/main.yml
   tasks:
     - name: Update Endpoint
       ansible.builtin.script:
         cmd: ./cert-management/proxmox_update_certs.sh {{ container_ssl_path }}
 
-- name: Stop cert manager container
+- name: Stop Container
   hosts: proxmox
-  gather_facts: true
-  become: false
-  tags: [update]
-  vars_files:
-    - vars/cert_update_vars.yml
   tasks:
-    - name: Stop container
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          pct stop $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
-        executable: /bin/bash
-      changed_when: true
-      failed_when: false
-    - name: Sleep for 5 seconds and continue with play
-      ansible.builtin.wait_for:
-        timeout: 5
-      delegate_to: localhost
-    - name: Check if container already stopped
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          pct status $( pct list | grep certmanager | tr -s ' ' | cut -d ' ' -f 1)
-        executable: /bin/bash
-      changed_when: false
-      register: container_state
-    - name: Check if container stopped
-      ansible.builtin.assert:
-        that:
-          - "'stopped' in container_state.stdout"
+    - name: First Start
+      import_role:
+        name: common
+      vars:
+        goal: "stop"
