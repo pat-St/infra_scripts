@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip3 install -r requirements.txt
       - name: Update infrastructure
-        run: ansible-playbook update_infra.yaml -v --tags=update
+        run: ansible-playbook update_infra.yaml -vv
       - name: Notify if update failed
         if: ${{ failure() }}
         uses: dawidd6/action-send-mail@v3

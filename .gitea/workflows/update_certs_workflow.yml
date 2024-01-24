@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: pip3 install -r requirements.txt
       - name: Update certificates
-        run: ansible-playbook update_certs.yml -v --tags=update
+        run: ansible-playbook update_certs.yml -vv
       - name: Notify if update failed
         if: ${{ failure() }}
         uses: dawidd6/action-send-mail@v3
