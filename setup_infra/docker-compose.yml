@@ -3,6 +3,8 @@ version: "3"
 networks:
   gitea:
     external: false
+  notify:
+    external: false
 
 volumes:
   gitea:
@@ -16,7 +18,7 @@ volumes:
 
 services:
   git:
-    image: gitea/gitea:nightly
+    image: gitea/gitea:latest
     container_name: gitea
     environment:
       - USER_UID=1000
@@ -71,6 +73,8 @@ services:
       - serve
     environment:
       - TZ=UTC+2    # optional: set desired timezone
+    networks:
+      - notify
     volumes:
       - ntfycache:/var/cache/ntfy
       - ntfy:/etc/ntfy
