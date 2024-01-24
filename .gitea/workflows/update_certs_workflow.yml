@@ -1,8 +1,7 @@
 name: Run Ansible scripts for cert update
 on:
-  push
-  # schedule:
-  #   - cron: "0 20 1 * *"
+  schedule:
+    - cron: "0 20 1 * *"
 
 jobs:
   run_test:
