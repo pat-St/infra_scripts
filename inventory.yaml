@@ -9,10 +9,9 @@ all:
           # ansible_host: 10.10.0.4
           # ansible_connection: ssh
           # ansible_user: root
-          ansible_become: false
           ansible_ssh_common_args: -o RemoteCommand=none
           gather_facts: true
-          become: false
+          ansible_become: false
         portainer:
           ansible_host: 10.10.0.5
           ansible_user: user
@@ -30,6 +29,7 @@ all:
           # ansible_host: 10.10.0.78
           # ansible_connection: ssh
           # ansible_user: root
+          gather_facts: true
           ansible_become: false
         docker:
           url: enki.sterk-bodensee.de
