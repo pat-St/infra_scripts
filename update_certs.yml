@@ -1,4 +1,13 @@
 ---
+- name: Start Container
+  hosts: proxmox
+  tasks:
+    - name: First Start
+      import_role:
+        name: common
+      vars:
+        goal: "start"
+
 - name: Check Certs
   hosts: container:proxmox:!certmanager
   gather_facts: true
@@ -16,15 +25,6 @@
         state: directory
         follow: true
         mode: '0600'
-
-- name: Start Container
-  hosts: proxmox
-  tasks:
-    - name: First Start
-      import_role:
-        name: common
-      vars:
-        goal: "start"
 
 - name: Update Systems
   hosts: certmanager
