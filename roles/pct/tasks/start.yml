@@ -7,9 +7,9 @@
     executable: /bin/bash
   failed_when: false
   changed_when: true
-- name: Sleep for 5 seconds and continue with play
+- name: Sleep for 120 seconds and continue with play
   ansible.builtin.wait_for:
-    timeout: 5
+    timeout: 120
   delegate_to: localhost
 - name: Check if container already running
   ansible.builtin.shell:
@@ -23,9 +23,9 @@
   ansible.builtin.assert:
     that:
       - "'running' in container_state.stdout"
-- name: Sleep for 5 seconds and continue with play
+- name: Sleep for 60 seconds and continue with play
   ansible.builtin.wait_for:
-    timeout: 5
+    timeout: 60
   delegate_to: localhost
 - name: Check if container is accessable
   ansible.builtin.ping:

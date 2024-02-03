@@ -1,0 +1,6 @@
+---
+- name: Upload script
+  ansible.builtin.import_tasks: upload-script.yml
+
+- name: Start cert update proxmox
+  ansible.builtin.import_tasks: update-cert.yml

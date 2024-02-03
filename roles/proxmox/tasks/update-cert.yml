@@ -1,0 +1,4 @@
+---
+- name: Update Proxmox API
+  ansible.builtin.shell:
+    cmd: ./cert-management/proxmox_update_certs.sh {{ container_ssl_path }}

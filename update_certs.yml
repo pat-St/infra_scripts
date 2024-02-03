@@ -3,7 +3,7 @@
   hosts: proxmox
   tasks:
     - name: First Start
-      import_role:
+      ansible.builtin.import_role:
         name: pct
       vars:
         goal: "start"
@@ -131,7 +131,7 @@
     - vars/main.yml
   tasks:
     - name: Create combined cert
-      ansible.builtin.script:
+      ansible.builtin.shell:
         cmd: cat {{ container_ssl_path }}cert.pem {{ container_ssl_path }}privkey.pem > {{ container_ssl_path }}combined.pem
     - name: Update Service
       ansible.builtin.systemd:
@@ -140,21 +140,19 @@
 
 - name: Update Proxmox API
   hosts: proxmox
-  gather_facts: true
-  become: false
   tags: [update]
   vars_files:
     - vars/main.yml
   tasks:
-    - name: Update Endpoint
-      ansible.builtin.script:
-        cmd: ./cert-management/proxmox_update_certs.sh {{ container_ssl_path }}
+    - name: Start Proxmox cert update
+      ansible.builtin.import_role:
+        name: proxmox
 
 - name: Stop Container
   hosts: proxmox
   tasks:
     - name: First Start
-      import_role:
+      ansible.builtin.import_role:
         name: pct
       vars:
         goal: "stop"

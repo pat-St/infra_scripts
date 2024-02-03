@@ -1,0 +1,11 @@
+---
+- name: Create Folder
+  ansible.builtin.file:
+    path: cert-management/
+    state: directory
+    mode: "0400"
+- name: Upload script for update cert
+  ansible.builtin.copy:
+    src: files/proxmox_update_certs.sh
+    dest: cert-management/proxmox_update_certs.sh
+    mode: "0700"
