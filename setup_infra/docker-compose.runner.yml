@@ -6,7 +6,7 @@ volumes:
 
 services:
   ci:
-    image: gitea/act_runner:latest
+    image: gitea/act_runner:0.2.6
     container_name: gitea-runner
     environment:
       - GITEA_INSTANCE_URL=http://git.lan:3000
