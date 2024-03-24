@@ -43,6 +43,18 @@
       vars:
         goal: "stop"
 
+- name: Update Hosts
+  hosts: proxmox
+  gather_facts: true
+  become: false
+  tasks:
+    - name: Ping Endpoints
+      ansible.builtin.ping:
+    - name: Update Systems
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: safe
+
 - name: Reboot Host System
   hosts: proxmox
   gather_facts: true
