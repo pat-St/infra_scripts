@@ -14,6 +14,7 @@ jobs:
         shell: bash
         env:
           PRIV_KEY_pihole: ${{ secrets.PRIV_KEY_PIHOLE }}
+          PRIV_KEY_pihole2: ${{ secrets.PRIV_KEY_PIHOLE2 }}
           PRIV_KEY_docker: ${{ secrets.PRIV_KEY_DOCKER }}
           PRIV_KEY_monitor: ${{ secrets.PRIV_KEY_MONITOR }}
           PRIV_KEY_proxmox: ${{ secrets.PRIV_KEY_PROXMOX }}

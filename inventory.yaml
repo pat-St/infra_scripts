@@ -29,8 +29,11 @@ all:
           # ansible_host: 10.10.0.78
           # ansible_connection: ssh
           # ansible_user: root
-          gather_facts: true
           ansible_become: false
+        pihole2:
+          url: ea.sterk-bodensee.de
+          # ansible_host: 10.10.0.77
+          ansible_become: true
         docker:
           url: enki.sterk-bodensee.de
           # ansible_host: 10.10.0.9

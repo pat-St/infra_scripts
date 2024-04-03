@@ -1,4 +1,4 @@
 ---
 container_ssl_path: "/etc/letsencrypt/live/ssl/"
-certbot_domains_parameter: "-d ninsun.sterk-bodensee.de -d enki.sterk-bodensee.de -d abzu.sterk-bodensee.de -d tiamat.sterk-bodensee.de -d kingu.sterk-bodensee.de -d anu.sterk-bodensee.de"
+certbot_domains_parameter: "-d ninsun.sterk-bodensee.de -d enki.sterk-bodensee.de -d abzu.sterk-bodensee.de -d tiamat.sterk-bodensee.de -d kingu.sterk-bodensee.de -d anu.sterk-bodensee.de -d ea.sterk-bodensee.de"
 certbot_domains_cert_path: "/etc/letsencrypt/live"

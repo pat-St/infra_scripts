@@ -1,5 +1,7 @@
 .venv
-setup_infra/.env
+**/.env
 
 **/id_ed25519*
 ssl-cert
+
+setup_infra/proxmox/mnt

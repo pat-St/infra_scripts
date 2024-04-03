@@ -11,7 +11,6 @@
 - name: Update Container
   hosts: container
   gather_facts: true
-  become: false
   tasks:
     - name: Ping Endpoints
       ansible.builtin.ping:
@@ -23,7 +22,7 @@
       ansible.builtin.command: pihole -up && pihole -g
       register: update_block_list
       changed_when: update_block_list.rc != 0
-      when: ansible_facts['hostname'] == "pihole"
+      when: ansible_facts['hostname'].startswith("pihole")
     - name: Restart Systems
       ansible.builtin.reboot:
         reboot_timeout: 3600

@@ -20,3 +20,9 @@ indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.{tf}]
+indent_size = 4
+
+[config]
+indent_size = 4

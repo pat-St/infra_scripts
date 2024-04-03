@@ -125,7 +125,7 @@
         - "chain"
 
 - name: Update Pihole Cert
-  hosts: pihole
+  hosts: pihole:pihole2
   tags: [update]
   vars_files:
     - vars/main.yml

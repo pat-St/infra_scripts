@@ -22,20 +22,25 @@ Host certmanager
     Hostname 10.10.0.8
     IdentityFile ~/.ssh/id_ed25519_certmanager
 
+Host pihole2
+    User pihole
+    Port 4422
+    Hostname 10.10.0.77
+    IdentityFile ~/.ssh/id_ed25519_pihole2
+
+Host portainer
+    Hostname 10.10.0.5
+    User user
+    Port 4422
+    IdentityFile ~/.ssh/id_rsa_10.10.0.117
+
+Host portainer2
+    Hostname 10.10.0.6
+    User user
+    Port 4422
+    IdentityFile ~/.ssh/id_rsa_10.10.0.6
+
 Host *
     User root
     Port 22
     RequestTTY yes
-
-Host portainer
-  Hostname 10.10.0.5
-  User user
-  Port 4422
-  IdentityFile ~/.ssh/id_rsa_10.10.0.117
-
-Host portainer2
-  Hostname 10.10.0.6
-  User user
-  Port 4422
-  IdentityFile ~/.ssh/id_rsa_10.10.0.6
-
