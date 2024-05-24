@@ -18,17 +18,17 @@ volumes:
 
 services:
   git:
-    image: gitea/gitea:1.21.7
+    image: codeberg.org/forgejo/forgejo:7.0
     container_name: gitea
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - GITEA__database__DB_TYPE=$DB_TYPE
-      - GITEA__database__HOST=$DB__HOST
-      - GITEA__database__NAME=$DB_NAME
-      - GITEA__database__USER=$DB__USER
-      - GITEA__database__PASSWD=$DB__PASSWD
-      - GITEA__actions__ENABLED=true
+      - FORGEJO__database__DB_TYPE=$DB_TYPE
+      - FORGEJO__database__HOST=$DB__HOST
+      - FORGEJO__database__NAME=$DB_NAME
+      - FORGEJO__database__USER=$DB__USER
+      - FORGEJO__database__PASSWD=$DB__PASSWD
+      - FORGEJO__actions__ENABLED=true
     networks:
       - gitea
     volumes:
