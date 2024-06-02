@@ -14,4 +14,9 @@
     },
     "redhat.telemetry.enabled": false,
     "git.ignoreLimitWarning": true,
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": [
+            "*.yml"
+        ]
+    },
 }
