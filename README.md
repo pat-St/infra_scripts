@@ -27,7 +27,7 @@ source .venv/bin/activate && \
 ansible-playbook ansible-playbook update_infra.yaml
 ```
 
-## Add a new target for ansible cron job
+## Add a new target for Ansible cron job
 
 1. Added a new Entry under `keys/config`.
 2. Added a new Entry under `.gitea/workflows/update_infra_workfow.yml` with New environment Entry scheme: `PRIV_KEY_$$host-name$$: ${{ secrets.PRIV_KEY_$$host-name$$ }}`.

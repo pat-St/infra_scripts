@@ -1,0 +1,62 @@
+# FROM https://www.docker.com/blog/back-up-and-share-docker-volumes-with-this-extension/
+---
+- name: Backup Forgejo
+  hosts: portainer
+  become: true
+  vars:
+    pwd: "{{ lookup('env','PWD') }}"
+    git_cmd: forgejo
+    backup_type: dump
+    git_conf_data: /data/gitea/conf/app.ini
+    git_container_name: gitea
+    host_backup_path: /docker/backup/forgejo
+    s3_url: "http://10.10.0.7:9001"
+    s3_bucket: "dockerbackup"
+  tasks:
+    - name: Setup variable
+      ansible.builtin.set_fact:
+        backup_name: "{{ git_cmd }}-backup-{{ now(utc=true,fmt='%Y-%m-%d') }}.zip"
+    - name: Search backup folder.
+      ansible.builtin.stat:
+        path: "{{ host_backup_path }}"
+      register: file_permission_check
+    - name: Check folder access permission.
+      ansible.builtin.fail:
+        msg: "Wrong folder group permission {{ file_permission_check.stat.gid }} or mode {{ file_permission_check.stat.mode }}"
+      when: file_permission_check.stat.gid != 1000 or file_permission_check.stat.mode != "0770"
+    - name: Make backup with command.
+      ansible.builtin.command:
+        cmd: docker exec -it -u '1000:1000' -w '/backup/{{ git_cmd }}' {{ git_container_name }} bash -c '{{ git_cmd }} {{ backup_type }} -c {{ git_conf_data }} --file {{ backup_name }} -q'
+      register: backup_result
+      changed_when: backup_result.rc == 0
+      failed_when: backup_result.rc != 0
+    - name: Upload with container.
+      community.docker.docker_container:
+        name: uploader
+        image: amazon/aws-cli:latest
+        state: started
+        working_dir: "/backup/{{ git_cmd }}"
+        user: '1000:1000'
+        # cleanup: true
+        detach: false
+        env:
+          AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+          AWS_SECRET_ACCESS_KEY: "{{ aws_access_key }}"
+          AWS_ENDPOINT_URL: "{{ s3_url }}"
+        volumes:
+          - "/docker/backup:/backup:ro"
+        command: "s3api put-object --bucket {{ s3_bucket }} --body {{ backup_name }} --key {{ backup_name }} --endpoint-url {{ s3_url }}"
+      register: upload_container
+      changed_when: upload_container.status == 0
+    - name: Output Container
+      ansible.builtin.debug:
+        msg: "{{ upload_container.container.Output }}"
+    - name: Delete Backup
+      ansible.builtin.file:
+        path: "{{ host_backup_path }}/{{ backup_name }}"
+        state: absent
+
+## TODO: Restore from here https://docs.gitea.com/next/administration/backup-and-restore#using-docker-restore
+
+
+

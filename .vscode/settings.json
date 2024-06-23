@@ -1,7 +1,6 @@
 {
     "python.defaultInterpreterPath": "${workspaceFolder}/.env/bin/python",
     "ansible.validation.enabled": true,
-    "ansible.python.interpreterPath": "${workspaceFolder}/.venv/bin/python",
     "ansible.validation.lint.enabled": true,
     "ansible.validation.lint.path": ".venv/bin/ansible-lint",
     "editorconfig.generateAuto": true,
