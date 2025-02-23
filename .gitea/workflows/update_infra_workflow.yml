@@ -22,11 +22,13 @@ jobs:
           PRIV_KEY_certmanager: ${{ secrets.PRIV_KEY_CERTMANAGER }}
         run: bash keys/import.sh
       - name: Prepare package dependencies
-        run: apt update && apt install -y -q python3-pip && pip3 --version
+        run: apt update && apt install -y -q python3-pip python-is-python3 automake && pip --version
       - name: Install dependencies
-        run: pip3 install -r requirements.txt
+        run: make install
+      - name: Validate files
+        run: make run/validate
       - name: Update infrastructure
-        run: ansible-playbook update_infra.yaml -vv
+        run: make run/update_infra
       - name: Notify if update failed
         if: ${{ failure() }}
         uses: https://github.com/dawidd6/action-send-mail@v3

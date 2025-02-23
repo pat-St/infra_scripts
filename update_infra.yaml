@@ -1,12 +1,13 @@
 ---
-- name: Start Container
+# code: language=ansible
+- name: Start Certmanager
   hosts: proxmox
   tasks:
     - name: First Start
       import_role:
-        name: pct
+        name: certmanager
       vars:
-        goal: "start"
+        certmanager_goal: "start"
 
 - name: Update Container
   hosts: container
@@ -33,14 +34,22 @@
         reboot_timeout: 3600
       when: ansible_facts['hostname'] == "wireguard" or ansible_facts['hostname'] == "monitor"
 
-- name: Stop Container
+- name: Update Observium
+  hosts: monitor
+  gather_facts: true
+  tasks:
+    - name: First Start
+      import_role:
+        name: observium
+
+- name: Stop Certmanager
   hosts: proxmox
   tasks:
     - name: First Start
       import_role:
-        name: pct
+        name: certmanager
       vars:
-        goal: "stop"
+        certmanager_goal: "stop"
 
 - name: Update Hosts
   hosts: proxmox

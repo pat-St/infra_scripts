@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "make",
+      "args": ["install"],
+      "group": "build",
+      "problemMatcher": ["$python"],
+      "label": "make: setup",
+      "detail": "install dependencies in python virtual env",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "revealProblems": "onProblem",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true,
+        "close": true
+      }
+    },
+    {
+      "type": "shell",
+      "command": "make",
+      "args": ["clean"],
+      "group": "clean",
+      "problemMatcher": ["$python"],
+      "label": "make: clean",
+      "detail": "uninstall dependencies in python virtual env",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "revealProblems": "onProblem",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true,
+        "close": true
+      }
+    }
+  ]
+}

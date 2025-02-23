@@ -1,0 +1,13 @@
+---
+# .ansible-lint
+
+profile: moderate # min, basic, moderate,safety, shared, production
+
+exclude_paths:
+  - .venv/
+  - .gitea/
+
+use_default_rules: true
+
+# Offline mode disables installation of requirements.yml and schema refreshing
+offline: true

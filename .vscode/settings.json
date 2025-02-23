@@ -1,21 +1,20 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.env/bin/python",
-    "ansible.validation.enabled": true,
-    "ansible.validation.lint.enabled": true,
-    "ansible.validation.lint.path": ".venv/bin/ansible-lint",
-    "editorconfig.generateAuto": true,
-    "[ansible]": {
-        "editor.quickSuggestions": {
-            "comments": true,
-            "other": true,
-            "strings": true
-        }
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/",
+  "ansible.validation.enabled": true,
+  "ansible.validation.lint.enabled": true,
+  "ansible.validation.lint.path": ".venv/bin/ansible-lint",
+  "ansible.validation.lint.arguments": "-c .config/ansible-lint.yml -i .config/ansible-lint-ignore.txt",
+  "editorconfig.generateAuto": true,
+  "[ansible]": {
+    "editor.quickSuggestions": {
+      "comments": true,
+      "other": true,
+      "strings": true
     },
-    "redhat.telemetry.enabled": false,
-    "git.ignoreLimitWarning": true,
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": [
-            "*.yml"
-        ]
-    },
+  },
+  "redhat.telemetry.enabled": false,
+  "git.ignoreLimitWarning": true,
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": "git:${workspaceFolder}/update_certs.yml"
+  },
 }

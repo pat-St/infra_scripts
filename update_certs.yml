@@ -4,9 +4,9 @@
   tasks:
     - name: First Start
       ansible.builtin.import_role:
-        name: pct
+        name: certmanager
       vars:
-        goal: "start"
+        certmanager_goal: "start"
 
 - name: Check Certs
   hosts: container:proxmox:!certmanager
@@ -153,6 +153,6 @@
   tasks:
     - name: First Start
       ansible.builtin.import_role:
-        name: pct
+        name: certmanager
       vars:
-        goal: "stop"
+        certmanager_goal: "stop"

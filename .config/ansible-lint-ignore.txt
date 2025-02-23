@@ -1,0 +1,19 @@
+# This file contains ignores rule violations for ansible-lint
+.gitea/workflows/update_certs_workflow.yml yaml[truthy]
+.gitea/workflows/update_infra_workflow.yml yaml[truthy]
+backup_git.yaml jinja[spacing]
+backup_git.yaml yaml[empty-lines]
+backup_git.yaml yaml[line-length]
+roles/observium/tasks/main.yml command-instead-of-shell
+roles/observium/tasks/main.yml no-changed-when
+roles/proxmox/tasks/update-cert.yml command-instead-of-shell
+roles/proxmox/tasks/update-cert.yml no-changed-when
+setup_infra/docker-compose.yml yaml[empty-lines]
+setup_infra/docker-compose.yml yaml[indentation]
+setup_infra/proxmox/create_api-token.yml yaml[line-length]
+update_certs.yml no-changed-when
+update_certs.yml var-naming[no-role-prefix]
+update_infra.yaml fqcn[action-core]
+update_infra.yaml var-naming[no-role-prefix]
+upgrade_debian.yaml no-changed-when
+vars/main.yml yaml[line-length]

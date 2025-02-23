@@ -1,21 +1,33 @@
 version: "3"
 
-volumes:
-  runner:
-    driver: local
-
 services:
+  docker-in-docker:
+    image: docker:dind
+    container_name: 'docker_dind'
+    privileged: 'true'
+    command: ['dockerd', '-H', 'tcp://0.0.0.0:2375', '--tls=false']
+    restart: 'unless-stopped'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
   ci:
-    image: gitea/act_runner:0.2.10
-    container_name: gitea-runner
+    image: data.forgejo.org/forgejo/runner:3.5.1
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: runner
     environment:
-      - GITEA_INSTANCE_URL=http://git.lan:3000
-      - GITEA_RUNNER_REGISTRATION_TOKEN=$GITEA_RUNNER_TOKEN
-      - GITEA_RUNNER_NAME=executor
-    restart: always
+      - DOCKER_HOST=tcp://docker-in-docker:2375
+    user: 1001:1001
     volumes:
-      - runner:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /docker/data:/data
+    restart: 'unless-stopped'
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
     deploy:
       resources:
         limits:

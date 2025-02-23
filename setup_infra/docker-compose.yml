@@ -12,7 +12,7 @@ volumes:
 
 services:
   git:
-    image: codeberg.org/forgejo/forgejo:7.0
+    image: codeberg.org/forgejo/forgejo:8.0.3
     container_name: gitea
     environment:
       - USER_UID=1000
@@ -60,5 +60,3 @@ services:
         limits:
           cpus: '1.5'
           memory: 350M
-
-

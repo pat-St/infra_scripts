@@ -1,8 +1,8 @@
 ---
 - name: Start cert manager container
   ansible.builtin.import_tasks: start.yml
-  when: goal == "start"
+  when: certmanager_goal == "start"
 
 - name: Stop cert manager container
   ansible.builtin.import_tasks: stop.yml
-  when: goal == "stop"
+  when: certmanager_goal == "stop"

@@ -1,0 +1,15 @@
+---
+- name: Create Folder
+  ansible.builtin.file:
+    path: update-script/
+    state: directory
+    mode: "0400"
+- name: Upload script for update observium
+  ansible.builtin.copy:
+    src: files/update_observium.sh
+    dest: update-script/update_observium.sh
+    mode: "0700"
+- name: Update Observium
+  ansible.builtin.shell:
+    cmd: ./update-script/update_observium.sh
+    changed_when:

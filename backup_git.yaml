@@ -15,7 +15,7 @@
   tasks:
     - name: Setup variable
       ansible.builtin.set_fact:
-        backup_name: "{{ git_cmd }}-backup-{{ now(utc=true,fmt='%Y-%m-%d') }}.zip"
+        backup_name: "{{ git_cmd }}-backup-{{ now(utc=true, fmt='%Y-%m-%d') }}.zip"
     - name: Search backup folder.
       ansible.builtin.stat:
         path: "{{ host_backup_path }}"
@@ -57,6 +57,3 @@
         state: absent
 
 ## TODO: Restore from here https://docs.gitea.com/next/administration/backup-and-restore#using-docker-restore
-
-
-
