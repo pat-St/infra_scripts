@@ -22,7 +22,7 @@ jobs:
           PRIV_KEY_certmanager: ${{ secrets.PRIV_KEY_CERTMANAGER }}
         run: bash keys/import.sh
       - name: Prepare package dependencies
-        run: apt update && apt install -y -q python3-pip python-is-python3 automake && pip --version
+        run: apt update && apt install -y -q python3-pip python3-venv python-is-python3 automake && pip --version
       - name: Install dependencies
         run: make install
       - name: Validate files
