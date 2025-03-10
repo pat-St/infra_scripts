@@ -3,18 +3,18 @@ version: "3"
 services:
   docker-in-docker:
     image: docker:dind
-    container_name: 'docker_dind'
-    privileged: 'true'
-    command: ['dockerd', '-H', 'tcp://0.0.0.0:2375', '--tls=false']
-    restart: 'unless-stopped'
+    container_name: "docker_dind"
+    privileged: "true"
+    command: ["dockerd", "-H", "tcp://0.0.0.0:2375", "--tls=false"]
+    restart: "unless-stopped"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 128M
 
   ci:
-    image: data.forgejo.org/forgejo/runner:3.5.1
+    image: data.forgejo.org/forgejo/runner:6.2.2
     links:
       - docker-in-docker
     depends_on:
@@ -26,10 +26,10 @@ services:
     user: 1001:1001
     volumes:
       - /docker/data:/data
-    restart: 'unless-stopped'
+    restart: "unless-stopped"
     command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 500M
