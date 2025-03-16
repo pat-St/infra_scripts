@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-NEW_PORTAINER_VERSION=2.27.1
+NEW_PORTAINER_VERSION=lts
 # NEW_PORTAINER_VERSION=lts
 
 jq --version

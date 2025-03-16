@@ -64,3 +64,8 @@ apt update
 apt upgrade --without-new-pkgs
 
 apt full-upgrade
+
+# See https://forum.proxmox.com/threads/installing-gitlab-into-lxc-container-sysctl-kernel-shmmax.49388/post-589744
+cat <<EOF | tee -a /etc/gitlab/gitlab.rb
+package['modify_kernel_parameters'] = false
+EOF

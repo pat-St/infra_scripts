@@ -1,0 +1,14 @@
+---
+- name: Create Folder
+  ansible.builtin.file:
+    path: update-script/
+    state: directory
+    mode: "0700"
+- name: Upload script for update portainer
+  ansible.builtin.copy:
+    src: files/portainer-standalone-update.sh
+    dest: update-script/portainer-standalone-update.sh
+    mode: "0500"
+- name: Update Portainer
+  ansible.builtin.shell:
+    cmd: ./update-script/portainer-standalone-update.sh

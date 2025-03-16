@@ -3,9 +3,9 @@
   ansible.builtin.file:
     path: cert-management/
     state: directory
-    mode: "0400"
+    mode: "0700"
 - name: Upload script for update cert
   ansible.builtin.copy:
     src: files/proxmox_update_certs.sh
     dest: cert-management/proxmox_update_certs.sh
-    mode: "0700"
+    mode: "0500"

@@ -51,6 +51,13 @@
       vars:
         certmanager_goal: "stop"
 
+- name: Update Portainer OCI
+  hosts: portainer, portainer2, docker
+  tasks:
+    - name: Update standalone container
+      include_role:
+        name: portainer
+
 - name: Update Hosts
   hosts: proxmox
   gather_facts: true
